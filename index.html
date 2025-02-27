@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Room Winners</title>
+  <style>
+    *
+    {
+        font-size: 30px;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      background-image: url(2035690.webp);
+    }
+    .container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 20px;
+      height: 100vh;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .room {
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start; /* Align content to the top */
+    }
+    .room h2 {
+      margin-top: 0;
+    }
+    .team-card {
+      margin: 10px 0;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      text-align: left;
+      width: 800px; /* Full width */
+      display: flex;
+      align-items: center;
+      gap: 20px; /* Space between image and text */
+    }
+    .team-card img {
+      width: 100px; /* Larger image */
+      height: 100px; /* Larger image */
+      object-fit: cover;
+    }
+    .team-card p {
+      margin: 5px 0;
+      font-size: 25px;
+    }
+    .team-card .edit-icon {
+      cursor: pointer;
+      font-size: 18px;
+      margin-left: auto; /* Push the edit icon to the right */
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      font-size: 10px;
+      transform: translate(-50%, -50%);
+      background-color: #fff;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+    }
+    .modal input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .modal button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .modal button:hover {
+      background-color: #0056b3;
+    }
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+    .h1{
+        text-align: center;
+        font-size: 51px;
+        margin-bottom: -10px;
+    }
+    .header
+    {
+        text-align: center;
+    }
+    .header img
+    {
+        width: 100px;
+        height: 100px;
+        margin-top: 10px;
+        margin-bottom: -40px;
+        border-radius: 50%;
+    }
+    .header img,.header h1 
+    {
+        display: inline-block;
+    }
+    .header h1 
+    {
+        color: white;
+    }
+  </style>
+</head>
+<body>
+<div> 
+    <div class="header">
+        <img src="IMG_6689.JPG" alt="Logo"> <!-- Replace with your logo -->
+        <h1>Escape Room</h1>
+      </div>
+  <div class="container">
+    <!-- Room 1 -->
+    <div class="room room1" id="room1">
+      <h2>Hereditary</h2>
+      <div id="room1Teams"></div>
+      <p class="copyright">© 2025 Alpha Team. All rights reserved.</p>
+    </div>
+
+    <!-- Room 2 -->
+    <div class="room" id="room2">
+      <h2>Sinister</h2>
+      <div id="room2Teams"></div>
+      <p class="copyright">© 2025 Alpha Team. All rights reserved.</p>
+    </div>
+
+    <!-- Room 3 -->
+    <div class="room" id="room3">
+      <h2>The pyramid</h2>
+      <div id="room3Teams"></div>
+      <p class="copyright">© 2025 Alpha Team. All rights reserved.</p>
+    </div>
+
+    <!-- Room 4 -->
+    <div class="room" id="room4">
+      <h2>Tarot</h2>
+      <div id="room4Teams"></div>
+      <p class="copyright">© 2025 Alpha Team. All rights reserved.</p>
+    </div>
+  </div>
+
+  <!-- Update Modal -->
+  <div class="overlay" id="overlay"></div>
+  <div class="modal" id="updateModal">
+    <h3>Update Team</h3>
+    <input type="text" id="updateName" placeholder="Team Name">
+    <input type="text" id="updateRecord" placeholder="Team Record">
+    <input type="text" id="updateRank" placeholder="Team Rank (Top 1, Top 2, Top 3)">
+    <input type="file" id="updateImage" accept="image/*">
+    <button onclick="saveUpdate()">Save</button>
+    <button onclick="closeModal()">Cancel</button>
+  </div>
+
+  <script>
+    // Sample data for each room
+    const roomsData = {
+      room1: [
+        { name: "Team A", record: "10-2", rank: "Top 1", image: "https://via.placeholder.com/100" },
+        { name: "Team B", record: "8-4", rank: "Top 2", image: "https://via.placeholder.com/100" },
+        { name: "Team C", record: "6-6", rank: "Top 3", image: "https://via.placeholder.com/100" },
+      ],
+      room2: [
+        { name: "Team X", record: "9-3", rank: "Top 1", image: "https://via.placeholder.com/100" },
+        { name: "Team Y", record: "7-5", rank: "Top 2", image: "https://via.placeholder.com/100" },
+        { name: "Team Z", record: "5-7", rank: "Top 3", image: "https://via.placeholder.com/100" },
+      ],
+      room3: [
+        { name: "Team P", record: "11-1", rank: "Top 1", image: "https://via.placeholder.com/100" },
+        { name: "Team Q", record: "9-3", rank: "Top 2", image: "https://via.placeholder.com/100" },
+        { name: "Team R", record: "7-5", rank: "Top 3", image: "https://via.placeholder.com/100" },
+      ],
+      room4: [
+        { name: "Team M", record: "12-0", rank: "Top 1", image: "https://via.placeholder.com/100" },
+        { name: "Team N", record: "10-2", rank: "Top 2", image: "https://via.placeholder.com/100" },
+        { name: "Team O", record: "8-4", rank: "Top 3", image: "https://via.placeholder.com/100" },
+      ],
+    };
+
+    let currentRoomId = null;
+    let currentTeamIndex = null;
+
+    // Function to display teams for a room
+    function displayTeams(roomId, teams) {
+      const container = document.getElementById(roomId + "Teams");
+      container.innerHTML = ""; // Clear previous content
+
+      teams.forEach((team, index) => {
+        const teamCard = document.createElement("div");
+        teamCard.className = "team-card";
+        teamCard.innerHTML = `
+          <img src="${team.image}" alt="${team.name}">
+          <div>
+            <p><strong>${team.name}</strong></p>
+            <p>Record: ${team.record}</p>
+            <p>Rank: ${team.rank}</p>
+          </div>
+          <span class="edit-icon" onclick="openModal('${roomId}', ${index})">✏️</span>
+        `;
+        container.appendChild(teamCard);
+      });
+    }
+
+    // Function to open the update modal
+    function openModal(roomId, teamIndex) {
+      currentRoomId = roomId;
+      currentTeamIndex = teamIndex;
+      const team = roomsData[roomId][teamIndex];
+      document.getElementById("updateName").value = team.name;
+      document.getElementById("updateRecord").value = team.record;
+      document.getElementById("updateRank").value = team.rank;
+      document.getElementById("updateImage").value = ""; // Clear file input
+      document.getElementById("overlay").style.display = "block";
+      document.getElementById("updateModal").style.display = "block";
+    }
+
+    // Function to close the modal
+    function closeModal() {
+      document.getElementById("overlay").style.display = "none";
+      document.getElementById("updateModal").style.display = "none";
+    }
+
+    // Function to save the updated team information
+    function saveUpdate() {
+      const name = document.getElementById("updateName").value;
+      const record = document.getElementById("updateRecord").value;
+      const rank = document.getElementById("updateRank").value;
+      const imageFile = document.getElementById("updateImage").files[0];
+
+      if (name && record && rank) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          roomsData[currentRoomId][currentTeamIndex] = {
+            name,
+            record,
+            rank,
+            image: e.target.result, // Use the uploaded image
+          };
+          displayTeams(currentRoomId, roomsData[currentRoomId]); // Refresh the display
+          closeModal();
+        };
+        if (imageFile) {
+          reader.readAsDataURL(imageFile); // Read the uploaded image
+        } else {
+          roomsData[currentRoomId][currentTeamIndex].image = roomsData[currentRoomId][currentTeamIndex].image; // Keep the old image
+          displayTeams(currentRoomId, roomsData[currentRoomId]); // Refresh the display
+          closeModal();
+        }
+      } else {
+        alert("Please fill in all fields.");
+      }
+    }
+
+    // Initialize the page by displaying teams for all rooms
+    function initializePage() {
+      for (const roomId in roomsData) {
+        displayTeams(roomId, roomsData[roomId]);
+      }
+    }
+
+    // Call the initialize function when the page loads
+    window.onload = initializePage;
+  </script>
+  </div>
+</body>
+</html>
